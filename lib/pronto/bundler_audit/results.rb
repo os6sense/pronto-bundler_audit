@@ -7,8 +7,11 @@ require "pronto/bundler_audit/gemfile_lock/scanner"
 module Pronto
   class BundlerAudit
     module Results
-      # Classes for the various issue types.
-      class BaseResult
+      # Classes for the various issue types. Rather than attempt to convert to
+      # a pronto message deep within the class hierarchy, we return our own
+      # result type which we can then manipulate as neccessary when putting
+      # a result set together for pronto.
+      class Result
         attr_reader :line, :level, :message
 
         def initialize(scan_result, level: :error)
@@ -21,28 +24,26 @@ module Pronto
         end
 
         def call
-          @line ||= GemfileLock::Scanner.call(gem_name: @gem.name)
-
-           # TODO: Switch type based on configuration options, once available.
-          @message = AdvisoryFormatters::Verbose.new(gem: @gem, advisory: @advisory).to_s
-
-           self
+          self
         end
-       end
+      end
 
-      class InsecureSource < BaseResult
+      class InsecureSource < Result
         def initialize(scan_result)
           super(scan_result, level: :warning)
 
           @message = "Insecure Source URI found: #{@scan_result.source}"
         end
-
-        def call
-          self
-        end
       end
 
-      UnpatchedGem = Class.new(BaseResult)
+      class UnpatchedGem < Result
+        # TODO: Switch AdvisoryFormatters type based on configuration options, once available.
+        def call
+          @line = GemfileLock::Scanner.call(gem_name: @gem.name)
+          @message = AdvisoryFormatters::Verbose.new(gem: @gem, advisory: @advisory).to_s
+          super
+        end
+      end
     end
   end
 end
