@@ -10,20 +10,8 @@ module Pronto
     class Auditor
       # @return (see: #run_scan)
       def call
-        update_ruby_advisory_db
-        run_scanner
-      end
-
-      private
-
-      def update_ruby_advisory_db
         Bundler::Audit::Database.update!(quiet: true)
-      end
-
-      # @return [Array>] if no advisories were found
-      # @return [Array<Pronto::Message>] if advisories were found
-      def run_scanner
-        Scanner.call
+        Scanner.new.call
       end
     end
   end

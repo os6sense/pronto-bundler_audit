@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "results/insecure_source"
-require_relative "results/unpatched_gem"
+require_relative "results"
 
 module Pronto
   class BundlerAudit
@@ -9,23 +8,15 @@ module Pronto
     # then instantiates and calls an appropriate
     # {Pronto::BundlerAudit::BaseResult} object for the given scan result type.
     class Scanner
-      def self.call
-        new.call
-      end
-
       # @return [Array>] if no advisories were found
       # @return [Array<Pronto::Message>] if advisories were found)
       def call
-        run_scan
-      end
-
-      private
-
-      def run_scan
         run_scanner.map do |scan_result|
           match_result(scan_result).call
         end
       end
+
+      private
 
       # Invoke the 3rd-party bundler-audit Gem.
       #
