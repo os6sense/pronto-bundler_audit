@@ -2,7 +2,7 @@
 
 require "pronto/bundler_audit/advisory_formatters/compact"
 require "pronto/bundler_audit/advisory_formatters/verbose"
-require "pronto/bundler_audit/gemfile_lock/scanner"
+require "pronto/bundler_audit/gemfile_lock"
 
 module Pronto
   class BundlerAudit
@@ -21,7 +21,7 @@ module Pronto
         end
 
         def call
-          @line ||= GemfileLock::Scanner.new(gem_name: @gem.name).call
+          @line ||= GemfileLock.new(gem_name: @gem.name).scan
 
           # TODO: Switch type based on configuration options, once available.
           @message = AdvisoryFormatters::Verbose.new(gem: @gem, advisory: @advisory).to_s
