@@ -15,7 +15,7 @@ module Pronto
       # @return [Array>] if no advisories were found
       # @return [Array<Pronto::Message>] if advisories were found)
       def call
-        run_scan
+        run_scan || []
       end
 
       private
